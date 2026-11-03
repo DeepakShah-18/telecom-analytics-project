@@ -2,8 +2,6 @@
 
 An end-to-end analytics project for a fictional Indian telecom operator. The project uses **synthetic data for 10,000 customers across 90 consecutive days (1 January–31 March 2025)** to demonstrate data generation, BigQuery data engineering, data quality validation, and Power BI reporting.
 
-**GitHub repository:** [DeepakShah-18/telecom-analytics-project](https://github.com/DeepakShah-18/telecom-analytics-project)
-
 > **Data notice:** All records are synthetically generated for learning and demonstration. They do not represent real customers or an actual telecom operator.
 
 ## Project objectives
@@ -22,7 +20,6 @@ An end-to-end analytics project for a fictional Indian telecom operator. The pro
 | Cloud data warehouse | Google BigQuery |
 | Data transformation | BigQuery Standard SQL |
 | Data modelling and visualisation | Power BI, DAX |
-| Source control | Git, GitHub |
 
 ## Data pipeline and architecture
 
@@ -60,7 +57,6 @@ Python synthetic data generation
 
 ### BigQuery environment
 
-- **Google Cloud project:** `weighty-actor-513623-m6`
 - **Raw dataset:** `Bronze_Layer_Raw`
 - **Clean dataset:** `Silver_Layer_Clean`
 
@@ -170,19 +166,9 @@ The Silver tables are imported into Power BI using **Import mode**. The semantic
 
 ### Key relationships
 
-| Table | Key / grain | Relationship role |
-|---|---|---|
-| `customers_clean` | `customer_id` | Customer dimension primary key |
-| `daily_usage_clean` | `customer_id` + `usage_date` | Customer and date foreign keys; customer-day grain |
-| `network_quality_clean` | `customer_id` + `usage_date` | Customer and date foreign keys; customer-day grain |
-| `complaints_clean` | `complaint_id` | Complaint identifier; `customer_id` links to customers |
-| `churn_clean` | `customer_id` | One record per customer; links to the customer dimension |
-| `invoices_clean` | `invoice_id` | Invoice identifier; `customer_id` links to customers |
-| `payments_clean` | `payment_id` | Payment identifier; `invoice_id` links to invoices and `customer_id` links to customers |
+`customers_clean.customer_id` is the primary key of the customer dimension. In the related tables, `customer_id` is a foreign key to that dimension. Identifiers such as `complaint_id`, `invoice_id`, and `payment_id` identify records in their respective tables; they are not customer foreign keys. In `payments_clean`, `invoice_id` is also a foreign key to `invoices_clean.invoice_id`.
 
-**Key terminology:** `customers_clean.customer_id` is the primary key of the customer dimension. In the related tables, `customer_id` is a foreign key to that dimension. Identifiers such as `complaint_id`, `invoice_id`, and `payment_id` identify records in their respective tables; they are not customer foreign keys. In `payments_clean`, `invoice_id` is also a foreign key to `invoices_clean.invoice_id`.
-
-Daily usage and network quality have a customer-day grain, so the natural row identifier is the combination of `customer_id` and `usage_date`. The SQL uses `ROW_NUMBER()` to deduplicate these combinations. The table-creation scripts do not explicitly declare enforced BigQuery primary-key or foreign-key constraints; the keys above describe the logical and Power BI model relationships.
+The table-creation scripts do not explicitly declare enforced BigQuery primary-key or foreign-key constraints; the keys above describe the logical and Power BI model relationships.
 
 A DAX date dimension is used to support date-based analysis.
 
@@ -200,7 +186,7 @@ The dashboard includes measures and analysis for:
 - Total complaints, resolved complaints, average resolution time, and resolution rate.
 - Regional performance and customer-level operational trends.
 
-DAX functions used include `CALCULATE`, `SUM`, `AVERAGE`, `COUNT`, `DISTINCTCOUNT`, `ADDCOLUMNS`, `CALENDAR`, `IF`, `ROUND`, and text-concatenation functions.
+DAX functions used include `CALCULATE`, `SUM`, `AVERAGE`, `COUNT`, `DIVIDE`, `DISTINCTCOUNT`, `ADDCOLUMNS`, `FILTER`, `CALENDAR`, `IF`, `ROUND`, and text-concatenation functions.
 
 ### Report functionality
 
@@ -211,7 +197,13 @@ DAX functions used include `CALCULATE`, `SUM`, `AVERAGE`, `COUNT`, `DISTINCTCOUN
 
 ### Screenshots
 
-Add the star-schema and three report-page screenshots to the repository (for example, in an `images/` folder) and embed them here using relative Markdown image links. The screenshots were not included with the project details used to prepare this README.
+<img width="922" height="615" alt="image" src="https://github.com/user-attachments/assets/e6343607-386f-4dc5-ba48-07aec3098816" />
+
+<img width="981" height="561" alt="image" src="https://github.com/user-attachments/assets/8bfdd99d-ec12-4837-89f3-3325f58b074b" />
+
+<img width="985" height="562" alt="image" src="https://github.com/user-attachments/assets/357c02f3-e84b-4cfe-b6ba-cf9b23a8d6e0" />
+
+<img width="979" height="558" alt="image" src="https://github.com/user-attachments/assets/a49e69c8-9d2d-4595-bacf-c38e42755077" />
 
 ## Re-creating the project
 
@@ -235,16 +227,3 @@ To reproduce the workflow:
 5. Run the SQL scripts in `Data Cleaning - SQL Scripts/`. Create `customers_clean` first because the other customer-linked tables use it for validation. Create `invoices_clean` before `payments_clean` because payments are matched to invoices.
 6. Connect the Silver-layer tables to Power BI using Import mode. Recreate the relationships, date dimension, DAX measures, visuals, drill-through page, and RLS role.
 7. Publish the report to Power BI Service, configure credentials and scheduled refresh, and assign report access and RLS role membership.
-
-The exact Python package requirements and Power BI report file location should be documented in the repository if they are distributed as part of the project.
-
-## Project scope and considerations
-
-- The dataset represents a fictional operator and is intended for demonstration, portfolio, and learning purposes.
-- The reporting window covers 90 days: 1 January–31 March 2025.
-- Bronze-to-Silver row-count differences are expected because of data validation, deduplication, date filtering, and relationship checks.
-- Power BI scheduled refresh and user access depend on the workspace, data-source credentials, licensing, and any required gateway configuration.
-
-## Repository
-
-[View the source code and SQL scripts on GitHub](https://github.com/DeepakShah-18/telecom-analytics-project)
